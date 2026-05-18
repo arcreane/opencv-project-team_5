@@ -1,0 +1,20 @@
+# Build
+build/
+cmake-build-*/
+*.o
+*.obj
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Qt
+*.pro.user
+
+# Logs / temp
+*.log
