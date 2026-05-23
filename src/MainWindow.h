@@ -24,7 +24,8 @@ private slots:
     void onThresholdChanged(int value);  //curseur de seuillage deplace
     void onModeChanged(int index);       //changement de mode
     void resetImage();                   //revenir a l'image d'origine
-    void onEqualize();                   //egalisation d'histogramme
+    void onEqualize();                   //egalisation globale
+    void onClahe();                      //egalisation CLAHE
 
 private:
     void buildControlPanel();            //construit le panneau lateral

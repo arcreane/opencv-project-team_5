@@ -99,9 +99,11 @@ void MainWindow::buildControlPanel() {
 
     //Bloc Egalisation d'histogramme
     auto *eqTitle = new QLabel("<b>Egalisation d'histogramme</b>");
-    auto *equalizeButton = new QPushButton("Egaliser");
+    auto *equalizeButton = new QPushButton("Globale");
+    auto *claheButton = new QPushButton("CLAHE (local)");
     layout->addWidget(eqTitle);
     layout->addWidget(equalizeButton);
+    layout->addWidget(claheButton);
     layout->addStretch();  // pousse les controles vers le haut
 
     dock->setWidget(panel);
@@ -121,6 +123,8 @@ void MainWindow::buildControlPanel() {
     //egalise l'histogramme
     connect(equalizeButton, &QPushButton::clicked,
             this, &MainWindow::onEqualize);
+    connect(claheButton, &QPushButton::clicked,
+            this, &MainWindow::onClahe);
 }
 
 void MainWindow::openImage() {
@@ -181,6 +185,14 @@ void MainWindow::onEqualize() {
         return;  //pas d'image chargee
     }
     const cv::Mat result = processing::equalize(originalImage_);
+    displayImage(result);
+}
+
+void MainWindow::onClahe() {
+    if (originalImage_.empty()) {
+        return;  //pas d'image chargee
+    }
+    const cv::Mat result = processing::applyClahe(originalImage_);
     displayImage(result);
 }
 
