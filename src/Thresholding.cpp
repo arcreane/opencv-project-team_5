@@ -23,4 +23,24 @@ cv::Mat applyThreshold(const cv::Mat &src, int thresholdValue) {
     return result;
 }
 
+cv::Mat applyOtsu(const cv::Mat &src) {
+    if (src.empty()) {
+        return {};
+    }
+
+    //Otsu travaille aussi sur le gris.
+    cv::Mat gray;
+    if (src.channels() == 3) {
+        cv::cvtColor(src, gray, cv::COLOR_BGR2GRAY);
+    } else {
+        gray = src;
+    }
+
+    //le 0 est ignore, Otsu trouve le seuil
+    cv::Mat result;
+    cv::threshold(gray, result, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
+
+    return result;
+}
+
 }

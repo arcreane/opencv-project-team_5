@@ -11,4 +11,7 @@ namespace processing {
 //noir (0) sinon.
 cv::Mat applyThreshold(const cv::Mat &src, int thresholdValue);
 
+//Seuillage automatique : Otsu calcule le seuil tout seul.
+cv::Mat applyOtsu(const cv::Mat &src);
+
 }

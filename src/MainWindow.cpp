@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 
 #include <QAction>
+#include <QComboBox>
 #include <QDockWidget>
 #include <QFileDialog>
 #include <QImage>
@@ -66,11 +67,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
 void MainWindow::buildControlPanel() {
     auto *dock = new QDockWidget("Traitements", this);
+    //panneau non fermable, pour ne pas le perdre
+    dock->setFeatures(QDockWidget::DockWidgetMovable |
+                      QDockWidget::DockWidgetFloatable);
     auto *panel = new QWidget;
     auto *layout = new QVBoxLayout(panel);
 
     //Bloc Seuillage
     auto *title = new QLabel("<b>Seuillage</b>");
+
+    //choix du mode
+    thresholdModeCombo_ = new QComboBox;
+    thresholdModeCombo_->addItem("Binaire");
+    thresholdModeCombo_->addItem("Otsu (auto)");
+
     thresholdValueLabel_ = new QLabel("Seuil : 127");
 
     thresholdSlider_ = new QSlider(Qt::Horizontal);
@@ -80,6 +90,7 @@ void MainWindow::buildControlPanel() {
     auto *resetButton = new QPushButton("Reinitialiser");
 
     layout->addWidget(title);
+    layout->addWidget(thresholdModeCombo_);
     layout->addWidget(thresholdValueLabel_);
     layout->addWidget(thresholdSlider_);
     layout->addWidget(resetButton);
@@ -94,6 +105,10 @@ void MainWindow::buildControlPanel() {
     //restaure l'image d'origine.
     connect(resetButton, &QPushButton::clicked,
             this, &MainWindow::resetImage);
+
+    //change de mode
+    connect(thresholdModeCombo_, &QComboBox::currentIndexChanged,
+            this, &MainWindow::onModeChanged);
 }
 
 void MainWindow::openImage() {
@@ -117,10 +132,26 @@ void MainWindow::openImage() {
 
 void MainWindow::onThresholdChanged(int value) {
     thresholdValueLabel_->setText(QString("Seuil : %1").arg(value));
+    applyThresholding();
+}
+
+void MainWindow::onModeChanged(int index) {
+    //Otsu trouve le seuil tout seul, le curseur ne sert plus
+    thresholdSlider_->setEnabled(index == 0);
+    applyThresholding();
+}
+
+void MainWindow::applyThresholding() {
     if (originalImage_.empty()) {
         return;  //pas d'image chargee
     }
-    const cv::Mat result = processing::applyThreshold(originalImage_, value);
+    cv::Mat result;
+    if (thresholdModeCombo_->currentIndex() == 1) {
+        result = processing::applyOtsu(originalImage_);
+    } else {
+        result = processing::applyThreshold(originalImage_,
+                                            thresholdSlider_->value());
+    }
     displayImage(result);
 }
 
