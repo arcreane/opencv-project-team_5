@@ -17,6 +17,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "HistogramEqualization.h"
 #include "Thresholding.h"
 
 static QImage matToQImage(const cv::Mat &mat) {
@@ -95,6 +96,12 @@ void MainWindow::buildControlPanel() {
     layout->addWidget(thresholdValueLabel_);
     layout->addWidget(thresholdSlider_);
     layout->addWidget(resetButton);
+
+    //Bloc Egalisation d'histogramme
+    auto *eqTitle = new QLabel("<b>Egalisation d'histogramme</b>");
+    auto *equalizeButton = new QPushButton("Egaliser");
+    layout->addWidget(eqTitle);
+    layout->addWidget(equalizeButton);
     layout->addStretch();  // pousse les controles vers le haut
 
     dock->setWidget(panel);
@@ -110,6 +117,10 @@ void MainWindow::buildControlPanel() {
     //change de mode
     connect(thresholdModeCombo_, &QComboBox::currentIndexChanged,
             this, &MainWindow::onModeChanged);
+
+    //egalise l'histogramme
+    connect(equalizeButton, &QPushButton::clicked,
+            this, &MainWindow::onEqualize);
 }
 
 void MainWindow::openImage() {
@@ -163,6 +174,14 @@ void MainWindow::resetImage() {
         return;
     }
     displayImage(originalImage_);
+}
+
+void MainWindow::onEqualize() {
+    if (originalImage_.empty()) {
+        return;  //pas d'image chargee
+    }
+    const cv::Mat result = processing::equalize(originalImage_);
+    displayImage(result);
 }
 
 void MainWindow::displayImage(const cv::Mat &image) {
