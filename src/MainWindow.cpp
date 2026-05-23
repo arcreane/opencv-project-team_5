@@ -80,6 +80,7 @@ void MainWindow::buildControlPanel() {
     thresholdModeCombo_ = new QComboBox;
     thresholdModeCombo_->addItem("Binaire");
     thresholdModeCombo_->addItem("Otsu (auto)");
+    thresholdModeCombo_->addItem("Adaptatif (local)");
 
     thresholdValueLabel_ = new QLabel("Seuil : 127");
 
@@ -148,6 +149,8 @@ void MainWindow::applyThresholding() {
     cv::Mat result;
     if (thresholdModeCombo_->currentIndex() == 1) {
         result = processing::applyOtsu(originalImage_);
+    } else if (thresholdModeCombo_->currentIndex() == 2) {
+        result = processing::applyAdaptive(originalImage_);
     } else {
         result = processing::applyThreshold(originalImage_,
                                             thresholdSlider_->value());

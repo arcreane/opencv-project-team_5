@@ -14,4 +14,7 @@ cv::Mat applyThreshold(const cv::Mat &src, int thresholdValue);
 //Seuillage automatique : Otsu calcule le seuil tout seul.
 cv::Mat applyOtsu(const cv::Mat &src);
 
+//Seuillage adaptatif : un seuil calcule zone par zone.
+cv::Mat applyAdaptive(const cv::Mat &src);
+
 }

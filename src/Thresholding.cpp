@@ -43,4 +43,26 @@ cv::Mat applyOtsu(const cv::Mat &src) {
     return result;
 }
 
+cv::Mat applyAdaptive(const cv::Mat &src) {
+    if (src.empty()) {
+        return {};
+    }
+
+    //le mode adaptatif a besoin du gris.
+    cv::Mat gray;
+    if (src.channels() == 3) {
+        cv::cvtColor(src, gray, cv::COLOR_BGR2GRAY);
+    } else {
+        gray = src;
+    }
+
+    //un seuil different pour chaque petite zone (11x11)
+    cv::Mat result;
+    cv::adaptiveThreshold(gray, result, 255,
+                          cv::ADAPTIVE_THRESH_GAUSSIAN_C,
+                          cv::THRESH_BINARY, 11, 2);
+
+    return result;
+}
+
 }
