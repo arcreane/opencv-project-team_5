@@ -14,7 +14,12 @@ list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/opt/qt")
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 find_package(OpenCV REQUIRED)
 
-add_executable(opencv_image_editor src/main.cpp)
+add_executable(opencv_image_editor
+        src/main.cpp
+        src/MainWindow.cpp
+        src/MainWindow.h
+        src/Thresholding.cpp
+        src/Thresholding.h)
 
 target_include_directories(opencv_image_editor PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(opencv_image_editor PRIVATE Qt6::Widgets ${OpenCV_LIBS})
