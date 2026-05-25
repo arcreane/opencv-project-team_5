@@ -5,8 +5,7 @@
 namespace processing {
 cv::Mat equalize(const cv::Mat &src);
 
-//CLAHE : egalisation adaptative, tuile par tuile, avec limite de contraste.
+//CLAHE : egalisation adaptative
 cv::Mat applyClahe(const cv::Mat &src);
 
 }
-Q
