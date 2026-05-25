@@ -9,3 +9,4 @@ cv::Mat equalize(const cv::Mat &src);
 cv::Mat applyClahe(const cv::Mat &src);
 
 }
+Q
