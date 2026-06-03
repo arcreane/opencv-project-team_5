@@ -21,7 +21,9 @@ add_executable(opencv_image_editor
         src/Thresholding.cpp
         src/Thresholding.h
         src/HistogramEqualization.cpp
-        src/HistogramEqualization.h)
+        src/HistogramEqualization.h
+        src/CannyEdge.cpp
+        src/CannyEdge.h)
 
 target_include_directories(opencv_image_editor PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(opencv_image_editor PRIVATE Qt6::Widgets ${OpenCV_LIBS})
