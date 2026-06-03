@@ -23,7 +23,9 @@ add_executable(opencv_image_editor
         src/HistogramEqualization.cpp
         src/HistogramEqualization.h
         src/CannyEdge.cpp
-        src/CannyEdge.h)
+        src/CannyEdge.h
+        src/GeometricTransforms.cpp
+        src/GeometricTransforms.h)
 
 target_include_directories(opencv_image_editor PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(opencv_image_editor PRIVATE Qt6::Widgets ${OpenCV_LIBS})
