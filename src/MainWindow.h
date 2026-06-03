@@ -9,7 +9,6 @@ class QScrollArea;
 class QSlider;
 class QComboBox;
 
-//Fenetre principale de l'editeur d'images.
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -21,24 +20,32 @@ protected:
 
 private slots:
     void openImage();
-    void onThresholdChanged(int value);  //curseur de seuillage deplace
-    void onModeChanged(int index);       //changement de mode
-    void resetImage();                   //revenir a l'image d'origine
-    void onEqualize();                   //egalisation globale
-    void onClahe();                      //egalisation CLAHE
+    void onThresholdChanged(int value);
+    void onModeChanged(int index);
+    void resetImage();
+    void onEqualize();
+    void onClahe();
+    void onCannyApply();
+    void onDeskewApply();
+    void onPanoramaApply();
 
 private:
-    void buildControlPanel();            //construit le panneau lateral
-    void applyThresholding();            //applique le mode choisi
+    void buildControlPanel();
+    void applyThresholding();
     void displayImage(const cv::Mat &image);
     void updateScaledPixmap();
 
-    QLabel *imageLabel_ = nullptr;       //zone d'affichage de l'image
-    QScrollArea *scrollArea_ = nullptr;  //conteneur scrollable
-    QSlider *thresholdSlider_ = nullptr; //curseur de seuil (0-255)
-    QComboBox *thresholdModeCombo_ = nullptr; //mode de seuillage
-    QLabel *thresholdValueLabel_ = nullptr; //affiche la valeur du seuil
+    QLabel *imageLabel_ = nullptr;
+    QScrollArea *scrollArea_ = nullptr;
+    QSlider *thresholdSlider_ = nullptr;
+    QComboBox *thresholdModeCombo_ = nullptr;
+    QLabel *thresholdValueLabel_ = nullptr;
 
-    cv::Mat originalImage_;              //image chargee, non modifiee
-    QPixmap currentPixmap_;              //image affichee, pleine resolution
+    QSlider *cannyThresh1_ = nullptr;
+    QSlider *cannyThresh2_ = nullptr;
+    QComboBox *cannyApertureCombo_ = nullptr;
+    QSlider *deskewAngleSlider_ = nullptr;
+
+    cv::Mat originalImage_;
+    QPixmap currentPixmap_;
 };
