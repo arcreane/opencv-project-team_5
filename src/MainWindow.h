@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 #include <QPixmap>
+#include <QString>
 #include <opencv2/opencv.hpp>
 
 class QLabel;
@@ -28,6 +29,7 @@ private slots:
     void onCannyApply();
     void onDeskewApply();
     void onPanoramaApply();
+    void onExport();
 
 private:
     void buildControlPanel();
@@ -45,7 +47,10 @@ private:
     QSlider *cannyThresh2_ = nullptr;
     QComboBox *cannyApertureCombo_ = nullptr;
     QSlider *deskewAngleSlider_ = nullptr;
+    QComboBox *videoSpeedCombo_ = nullptr;
 
     cv::Mat originalImage_;
+    cv::Mat currentImage_;
     QPixmap currentPixmap_;
+    QString videoPath_;
 };

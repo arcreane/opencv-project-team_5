@@ -27,7 +27,9 @@ add_executable(opencv_image_editor
         src/GeometricTransforms.cpp
         src/GeometricTransforms.h
         src/Panorama.cpp
-        src/Panorama.h)
+        src/Panorama.h
+        src/Video.cpp
+        src/Video.h)
 
 target_include_directories(opencv_image_editor PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(opencv_image_editor PRIVATE Qt6::Widgets ${OpenCV_LIBS})

@@ -4,6 +4,7 @@
 #include <QComboBox>
 #include <QDockWidget>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QImage>
 #include <QLabel>
 #include <QMenu>
@@ -22,6 +23,7 @@
 #include "CannyEdge.h"
 #include "GeometricTransforms.h"
 #include "Panorama.h"
+#include "Video.h"
 
 static QImage matToQImage(const cv::Mat &mat) {
     if (mat.empty()) return {};
@@ -126,7 +128,24 @@ void MainWindow::buildControlPanel() {
     auto *panoramaButton = new QPushButton("Charger images et assembler");
     layout->addWidget(panoramaButton);
 
+    // Video (time-lapse / slow-motion)
+    layout->addWidget(new QLabel("<b>Video (time-lapse / slow-motion)</b>"));
+    videoSpeedCombo_ = new QComboBox;
+    videoSpeedCombo_->addItem("0.25x (ralenti fort)", 0.25);
+    videoSpeedCombo_->addItem("0.5x (ralenti)", 0.5);
+    videoSpeedCombo_->addItem("1x (normal)", 1.0);
+    videoSpeedCombo_->addItem("2x (acceleration)", 2.0);
+    videoSpeedCombo_->addItem("4x (time-lapse)", 4.0);
+    videoSpeedCombo_->addItem("8x (time-lapse fort)", 8.0);
+    videoSpeedCombo_->setCurrentIndex(2);
+    layout->addWidget(videoSpeedCombo_);
+
     layout->addStretch();
+
+    // Bouton d'export commun : image (avec filtres) ou video (avec vitesse)
+    auto *exportButton = new QPushButton("Exporter le fichier...");
+    layout->addWidget(exportButton);
+
     dock->setWidget(panel);
     addDockWidget(Qt::RightDockWidgetArea, dock);
 
@@ -141,21 +160,45 @@ void MainWindow::buildControlPanel() {
     connect(cannyButton, &QPushButton::clicked, this, &MainWindow::onCannyApply);
     connect(deskewButton, &QPushButton::clicked, this, &MainWindow::onDeskewApply);
     connect(panoramaButton, &QPushButton::clicked, this, &MainWindow::onPanoramaApply);
+    connect(exportButton, &QPushButton::clicked, this, &MainWindow::onExport);
 }
 
 void MainWindow::openImage() {
     const QString path = QFileDialog::getOpenFileName(
-        this, "Ouvrir une image", QString(),
-        "Images (*.png *.jpg *.jpeg *.bmp *.tif *.tiff)");
+        this, "Ouvrir un fichier", QString(),
+        "Fichiers (*.png *.jpg *.jpeg *.bmp *.tif *.tiff *.mp4 *.mov *.avi *.mkv);;"
+        "Images (*.png *.jpg *.jpeg *.bmp *.tif *.tiff);;"
+        "Videos (*.mp4 *.mov *.avi *.mkv)");
     if (path.isEmpty()) return;
 
-    cv::Mat image = cv::imread(path.toStdString(), cv::IMREAD_COLOR);
-    if (image.empty()) {
-        QMessageBox::warning(this, "Erreur", "Impossible de charger cette image.");
-        return;
+    const QString suffix = QFileInfo(path).suffix().toLower();
+    const bool isVideo = (suffix == "mp4" || suffix == "mov"
+                          || suffix == "avi" || suffix == "mkv");
+
+    if (isVideo) {
+        // On lit la premiere frame comme apercu
+        cv::VideoCapture cap(path.toStdString());
+        cv::Mat frame;
+        if (!cap.isOpened() || !cap.read(frame)) {
+            QMessageBox::warning(this, "Erreur",
+                "Impossible de lire cette video.");
+            return;
+        }
+        cap.release();
+        videoPath_ = path;
+        originalImage_ = frame;
+        displayImage(frame);
+    } else {
+        cv::Mat image = cv::imread(path.toStdString(), cv::IMREAD_COLOR);
+        if (image.empty()) {
+            QMessageBox::warning(this, "Erreur",
+                "Impossible de charger cette image.");
+            return;
+        }
+        videoPath_.clear();
+        originalImage_ = image;
+        displayImage(image);
     }
-    originalImage_ = image;
-    displayImage(originalImage_);
 }
 
 void MainWindow::onThresholdChanged(int value) {
@@ -230,7 +273,53 @@ void MainWindow::onPanoramaApply() {
     displayImage(result);
 }
 
+void MainWindow::onExport() {
+    // Cas video : on traite la video d'origine avec la vitesse choisie
+    if (!videoPath_.isEmpty()) {
+        QString output = QFileDialog::getSaveFileName(
+            this, "Enregistrer la video", QString(),
+            "Video MP4 (*.mp4)");
+        if (output.isEmpty()) return;
+        if (!output.endsWith(".mp4", Qt::CaseInsensitive)) output += ".mp4";
+
+        const double speed = videoSpeedCombo_->currentData().toDouble();
+        const bool ok = Video::processSpeed(
+            videoPath_.toStdString(), output.toStdString(), speed);
+
+        if (ok) {
+            QMessageBox::information(this, "Termine",
+                "Video exportee :\n" + output);
+        } else {
+            QMessageBox::warning(this, "Erreur",
+                "Echec de l'export video.");
+        }
+        return;
+    }
+
+    // Cas image : on enregistre l'image affichee (avec les filtres appliques)
+    if (currentImage_.empty()) {
+        QMessageBox::information(this, "Rien a exporter",
+            "Ouvre d'abord une image ou une video.");
+        return;
+    }
+    QString output = QFileDialog::getSaveFileName(
+        this, "Enregistrer l'image", QString(),
+        "Images (*.png *.jpg *.jpeg *.bmp *.tif)");
+    if (output.isEmpty()) return;
+    if (!output.contains('.')) output += ".png";
+
+    const bool ok = cv::imwrite(output.toStdString(), currentImage_);
+    if (ok) {
+        QMessageBox::information(this, "Termine",
+            "Image exportee :\n" + output);
+    } else {
+        QMessageBox::warning(this, "Erreur",
+            "Echec de l'export image.");
+    }
+}
+
 void MainWindow::displayImage(const cv::Mat &image) {
+    currentImage_ = image;
     currentPixmap_ = QPixmap::fromImage(matToQImage(image));
     updateScaledPixmap();
 }
