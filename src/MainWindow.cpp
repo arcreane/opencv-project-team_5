@@ -26,6 +26,7 @@
 #include "Video.h"
 #include "CreativeEffects.h"
 #include "Enhancement.h"
+#include "Morphology.h"
 
 static QImage matToQImage(const cv::Mat &mat) {
     if (mat.empty()) return {};
@@ -141,6 +142,24 @@ void MainWindow::buildControlPanel() {
     videoSpeedCombo_->addItem("8x (time-lapse fort)", 8.0);
     videoSpeedCombo_->setCurrentIndex(2);
     layout->addWidget(videoSpeedCombo_);
+    // Morphology
+        layout->addWidget(new QLabel("<b>Morphology</b>"));
+        morphologyModeCombo_ = new QComboBox;
+        morphologyModeCombo_->addItem("Dilate");
+        morphologyModeCombo_->addItem("Erode");
+        morphologyModeCombo_->addItem("Opening");
+        morphologyModeCombo_->addItem("Closing");
+        morphologyModeCombo_->addItem("Gradient");
+        layout->addWidget(morphologyModeCombo_);
+        layout->addWidget(new QLabel("Kernel size:"));
+        morphologyKernelSlider_ = new QSlider(Qt::Horizontal);
+        morphologyKernelSlider_->setRange(1, 21);
+        morphologyKernelSlider_->setValue(3);
+        morphologyKernelSlider_->setSingleStep(2);
+        layout->addWidget(morphologyKernelSlider_);
+        auto *morphologyButton = new QPushButton("Appliquer Morphology");
+        layout->addWidget(morphologyButton);
+
 // Creative Effects
     layout->addWidget(new QLabel("<b>Creative Effects</b>"));
     auto *sketchButton = new QPushButton("Pencil Sketch");
@@ -185,6 +204,7 @@ void MainWindow::buildControlPanel() {
     connect(cartoonButton, &QPushButton::clicked, this, &MainWindow::onCartoon);
     connect(unsharpButton, &QPushButton::clicked, this, &MainWindow::onUnsharpMask);
     connect(bilateralButton, &QPushButton::clicked, this, &MainWindow::onBilateralDenoise);
+    connect(morphologyButton, &QPushButton::clicked, this, &MainWindow::onMorphologyApply);
 }
 
 void MainWindow::openImage() {
@@ -379,3 +399,17 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
         if (originalImage_.empty()) return;
         displayImage(Enhancement::bilateralDenoise(originalImage_));
     }
+
+void MainWindow::onMorphologyApply() {
+    if (originalImage_.empty()) return;
+    int kernelSize = morphologyKernelSlider_->value();
+    if (kernelSize % 2 == 0) kernelSize++;
+    const int mode = morphologyModeCombo_->currentIndex();
+    cv::Mat result;
+    if (mode == 0)      result = Morphology::dilate(originalImage_, kernelSize);
+    else if (mode == 1) result = Morphology::erode(originalImage_, kernelSize);
+    else if (mode == 2) result = Morphology::opening(originalImage_, kernelSize);
+    else if (mode == 3) result = Morphology::closing(originalImage_, kernelSize);
+    else                result = Morphology::gradient(originalImage_, kernelSize);
+    displayImage(result);
+}
