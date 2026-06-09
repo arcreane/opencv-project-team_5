@@ -34,7 +34,7 @@ private slots:
     void onCartoon();
     void onUnsharpMask();
     void onBilateralDenoise();
-    void onMorphologyApply();
+
 private:
     void buildControlPanel();
     void applyThresholding();
@@ -53,8 +53,7 @@ private:
     QSlider *deskewAngleSlider_ = nullptr;
     QComboBox *videoSpeedCombo_ = nullptr;
     QSlider *unsharpStrengthSlider_ = nullptr;
-    QComboBox *morphologyModeCombo_ = nullptr;
-    QSlider *morphologyKernelSlider_ = nullptr;
+
 
     cv::Mat originalImage_;
     cv::Mat currentImage_;

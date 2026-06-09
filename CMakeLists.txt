@@ -33,9 +33,7 @@ add_executable(opencv_image_editor
         src/CreativeEffects.cpp
         src/CreativeEffects.h
         src/Enhancement.cpp
-        src/Enhancement.h
-        src/Morphology.cpp
-        src/Morphology.h)
+        src/Enhancement.h)
 
 target_include_directories(opencv_image_editor PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(opencv_image_editor PRIVATE Qt6::Widgets ${OpenCV_LIBS})
