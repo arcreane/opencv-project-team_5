@@ -8,7 +8,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-# Homebrew (Apple Silicon) install locations
+
 list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/opt/qt")
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
@@ -29,7 +29,11 @@ add_executable(opencv_image_editor
         src/Panorama.cpp
         src/Panorama.h
         src/Video.cpp
-        src/Video.h)
+        src/Video.h
+        src/CreativeEffects.cpp
+        src/CreativeEffects.h
+        src/Enhancement.cpp
+        src/Enhancement.h)
 
 target_include_directories(opencv_image_editor PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(opencv_image_editor PRIVATE Qt6::Widgets ${OpenCV_LIBS})

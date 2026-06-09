@@ -24,6 +24,8 @@
 #include "GeometricTransforms.h"
 #include "Panorama.h"
 #include "Video.h"
+#include "CreativeEffects.h"
+#include "Enhancement.h"
 
 static QImage matToQImage(const cv::Mat &mat) {
     if (mat.empty()) return {};
@@ -69,7 +71,7 @@ void MainWindow::buildControlPanel() {
     auto *panel = new QWidget;
     auto *layout = new QVBoxLayout(panel);
 
-    // Seuillage
+
     layout->addWidget(new QLabel("<b>Seuillage</b>"));
     thresholdModeCombo_ = new QComboBox;
     thresholdModeCombo_->addItem("Binaire");
@@ -139,6 +141,24 @@ void MainWindow::buildControlPanel() {
     videoSpeedCombo_->addItem("8x (time-lapse fort)", 8.0);
     videoSpeedCombo_->setCurrentIndex(2);
     layout->addWidget(videoSpeedCombo_);
+// Creative Effects
+    layout->addWidget(new QLabel("<b>Creative Effects</b>"));
+    auto *sketchButton = new QPushButton("Pencil Sketch");
+    auto *cartoonButton = new QPushButton("Cartoon");
+    layout->addWidget(sketchButton);
+    layout->addWidget(cartoonButton);
+
+    // Enhancement
+    layout->addWidget(new QLabel("<b>Enhancement</b>"));
+    layout->addWidget(new QLabel("Sharpening strength:"));
+    unsharpStrengthSlider_ = new QSlider(Qt::Horizontal);
+    unsharpStrengthSlider_->setRange(1, 30);
+    unsharpStrengthSlider_->setValue(10);
+    layout->addWidget(unsharpStrengthSlider_);
+    auto *unsharpButton = new QPushButton("Unsharp Mask (Sharpen)");
+    auto *bilateralButton = new QPushButton("Bilateral Denoise");
+    layout->addWidget(unsharpButton);
+    layout->addWidget(bilateralButton);
 
     layout->addStretch();
 
@@ -161,6 +181,10 @@ void MainWindow::buildControlPanel() {
     connect(deskewButton, &QPushButton::clicked, this, &MainWindow::onDeskewApply);
     connect(panoramaButton, &QPushButton::clicked, this, &MainWindow::onPanoramaApply);
     connect(exportButton, &QPushButton::clicked, this, &MainWindow::onExport);
+    connect(sketchButton, &QPushButton::clicked, this, &MainWindow::onPencilSketch);
+    connect(cartoonButton, &QPushButton::clicked, this, &MainWindow::onCartoon);
+    connect(unsharpButton, &QPushButton::clicked, this, &MainWindow::onUnsharpMask);
+    connect(bilateralButton, &QPushButton::clicked, this, &MainWindow::onBilateralDenoise);
 }
 
 void MainWindow::openImage() {
@@ -335,3 +359,23 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
     QMainWindow::resizeEvent(event);
     updateScaledPixmap();
 }
+    void MainWindow::onPencilSketch() {
+        if (originalImage_.empty()) return;
+        displayImage(CreativeEffects::pencilSketch(originalImage_));
+    }
+
+    void MainWindow::onCartoon() {
+        if (originalImage_.empty()) return;
+        displayImage(CreativeEffects::cartoon(originalImage_));
+    }
+
+    void MainWindow::onUnsharpMask() {
+        if (originalImage_.empty()) return;
+        double strength = unsharpStrengthSlider_->value() / 10.0;
+        displayImage(Enhancement::unsharpMask(originalImage_, strength));
+    }
+
+    void MainWindow::onBilateralDenoise() {
+        if (originalImage_.empty()) return;
+        displayImage(Enhancement::bilateralDenoise(originalImage_));
+    }

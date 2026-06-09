@@ -30,7 +30,10 @@ private slots:
     void onDeskewApply();
     void onPanoramaApply();
     void onExport();
-
+    void onPencilSketch();
+    void onCartoon();
+    void onUnsharpMask();
+    void onBilateralDenoise();
 private:
     void buildControlPanel();
     void applyThresholding();
@@ -48,6 +51,7 @@ private:
     QComboBox *cannyApertureCombo_ = nullptr;
     QSlider *deskewAngleSlider_ = nullptr;
     QComboBox *videoSpeedCombo_ = nullptr;
+    QSlider *unsharpStrengthSlider_ = nullptr;
 
     cv::Mat originalImage_;
     cv::Mat currentImage_;
