@@ -185,7 +185,12 @@ void MainWindow::buildControlPanel() {
     auto *exportButton = new QPushButton("Exporter le fichier...");
     layout->addWidget(exportButton);
 
-    dock->setWidget(panel);
+    //Panneau scrollable pour pouvoir defiler quand il y a beaucoup de modules
+    auto *panelScroll = new QScrollArea;
+    panelScroll->setWidget(panel);
+    panelScroll->setWidgetResizable(true);
+    panelScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    dock->setWidget(panelScroll);
     addDockWidget(Qt::RightDockWidgetArea, dock);
 
     // Connexions existantes
